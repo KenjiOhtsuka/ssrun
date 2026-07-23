@@ -1,0 +1,8 @@
+*.jar
+*.py
+*.txt
+
+node_modules/
+
+.idea/
+dist/

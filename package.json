@@ -1,0 +1,28 @@
+{
+  "name": "sdd_test",
+  "version": "0.1.0",
+  "bin": {
+    "ssrun": "dist/main.js"
+  },
+  "description": "",
+  "main": "dist/main.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
+
