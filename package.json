@@ -1,6 +1,6 @@
 {
-  "name": "ssrun",
-  "version": "0.1.1",
+  "name": "@kenjiotsuka/ssrun",
+  "version": "0.1.2",
   "bin": {
     "ssrun": "dist/main.js"
   },
