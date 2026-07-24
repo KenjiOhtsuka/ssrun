@@ -14,6 +14,8 @@ export interface ScenarioStep {
     request?: RequestDefinition,
     input?: RequestInput,
     exports?: Record<string, string>,
+    assert?: AssertionDefinition | ((res: Response, body: any) => void | Promise<void>);
+
     // for wait step
     duration?: number,
 }
@@ -44,3 +46,11 @@ export interface ResponseResolver {
         response: Response,
     ): Promise<Record<string, unknown>>;
 }
+
+export interface AssertionDefinition {
+    status?: number;
+    headers?: Record<string, string>;
+    json?: Record<string, unknown>;
+}
+
+

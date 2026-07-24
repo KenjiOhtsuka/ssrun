@@ -1,6 +1,6 @@
 {
-  "name": "sdd_test",
-  "version": "0.1.0",
+  "name": "ssrun",
+  "version": "0.1.1",
   "bin": {
     "ssrun": "dist/main.js"
   },
