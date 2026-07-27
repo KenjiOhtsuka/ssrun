@@ -41,7 +41,7 @@ export class RequestExecutor {
         if (input?.query) {
             const params = new URLSearchParams();
             for (const [key, value] of Object.entries(input.query)) {
-                params.set(key, String(value));
+                params.set(key, this.resolveString(String(value), context));
             }
             const qs = params.toString();
             if (qs) {
