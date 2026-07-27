@@ -126,7 +126,7 @@ sample-project/
 ## Text Interpolation
 
 - `{{ }}` is used for text interpolation in the test case. It can be used in request body, headers, and parameters.
-  When the internal variable is not defined, it won't be replaced.
+  When the variable is not defined in the context, it is replaced with an empty string.
 
 ## Executor
 
