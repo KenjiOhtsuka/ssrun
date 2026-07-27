@@ -130,10 +130,7 @@ export class RequestExecutor {
                 resolved.url,
                 {
                     method: resolved.method,
-                    headers: {
-                        ...resolved.headers,
-                        ...(hasBody ? { "Content-Type": "application/json" } : {})
-                    },
+                    headers: resolved.headers,
                     body: hasBody
                         ? JSON.stringify(resolved.body)
                         : null
