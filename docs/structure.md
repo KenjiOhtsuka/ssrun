@@ -102,7 +102,7 @@ export class Context {
 
 - The user compose test project as follows:
 
-```
+```text
 sample-project/
 |-- config/
 |   |-- default.ts
