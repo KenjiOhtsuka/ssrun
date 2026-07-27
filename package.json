@@ -6,11 +6,13 @@
   },
   "description": "",
   "main": "dist/main.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test --import tsx src/**/*.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,4 +27,3 @@
     "dotenv": "^17.4.2"
   }
 }
-

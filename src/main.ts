@@ -68,6 +68,8 @@ const requestExecutor = new RequestExecutor();
 const scenarioExecutor = new ScenarioExecutor(requestExecutor);
 const suiteExecutor = new SuiteExecutor(scenarioExecutor);
 
+let hasFailures = false;
+
 for (const target of runTargets) {
     const [type, name] = target.split(":");
     switch (type) {
@@ -82,9 +84,10 @@ for (const target of runTargets) {
                     const inputModulePath = new URL(`./request/input/${inputName}.ts`, projectRootURL);
                     const inputModule = await import(inputModulePath.href);
                     const input = inputModule.default ?? Object.values(inputModule)[0];
-                    console.log(`Executing request: ${name} with input: ${inputName}`);
-                    const response = await requestExecutor.execute(module.default ?? Object.values(module)[0], input, globalContext);
-                    console.log(`Response status: ${response.status}`);
+                    console.log(`[REQUEST] ${name}`);
+                    const result = await requestExecutor.execute(module.default ?? Object.values(module)[0], input, globalContext);
+                    console.log(`  [${result.success ? "PASS" : "FAIL"}] ${result.status} (${result.duration}ms)${result.error ? " — " + result.error : ""}\n`);
+                    if (!result.success) hasFailures = true;
                     break;
                 }
              } else {
@@ -131,26 +134,32 @@ for (const target of runTargets) {
                     body: body
                 };
 
-                console.log(`Executing request: ${name} with composed input`);
-                const response = await requestExecutor.execute(module.default ?? Object.values(module)[0], requestInput, globalContext);
-                console.log(`Response status: ${response.status}`);
+                console.log(`[REQUEST] ${name}`);
+                const result = await requestExecutor.execute(module.default ?? Object.values(module)[0], requestInput, globalContext);
+                console.log(`  [${result.success ? "PASS" : "FAIL"}] ${result.status} (${result.duration}ms)${result.error ? " — " + result.error : ""}\n`);
+                if (!result.success) hasFailures = true;
                 break;
             }
         case "scenario":
             const scenarioModulePath = new URL(`./scenario/${name}.ts`, projectRootURL);
             const scenarioModule = await import(scenarioModulePath.href);
             const scenario = scenarioModule.default ?? Object.values(scenarioModule)[0];
-            console.log(`Executing scenario: ${name}`);
-            await scenarioExecutor.execute(scenario, globalContext);
+            console.log(`[SCENARIO] ${name}`);
+            const scenarioResult = await scenarioExecutor.execute(scenario, globalContext);
+            if (!scenarioResult.success) hasFailures = true;
             break;
         case "suite":
             const suiteModulePath = new URL(`./suite/${name}.ts`, projectRootURL);
             const suiteModule = await import(suiteModulePath.href);
             const suite = suiteModule.default ?? Object.values(suiteModule)[0];
-            console.log(`Executing suite: ${name}`);
-            await suiteExecutor.execute(suite, globalContext);
+            const suiteResult = await suiteExecutor.execute(suite, globalContext);
+            if (suiteResult.failed > 0) hasFailures = true;
             break;
         default:
             throw new Error(`Unknown run target type: ${type}`);
     }
+}
+
+if (hasFailures) {
+    process.exit(1);
 }

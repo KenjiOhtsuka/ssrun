@@ -2,6 +2,7 @@
 
 import { Context } from "./Context.js";
 import type { RequestDefinition, RequestInput } from "./Request.js";
+import type { RequestResult } from "./Result.js";
 
 export class RequestExecutor {
 
@@ -117,30 +118,49 @@ export class RequestExecutor {
         request: RequestDefinition,
         input: RequestInput | null = null,
         context: Context | null = null
-    ): Promise<Response> {
+    ): Promise<RequestResult> {
+        if (context == null) context = new Context();
 
-        const resolved =
-            this.resolve(
-                request,
-                input,
-                context
+        const resolved = this.resolve(request, input, context);
+        const start = Date.now();
+
+        try {
+            const hasBody = resolved.body != null;
+            const response = await fetch(
+                resolved.url,
+                {
+                    method: resolved.method,
+                    headers: {
+                        ...resolved.headers,
+                        ...(hasBody ? { "Content-Type": "application/json" } : {})
+                    },
+                    body: hasBody
+                        ? JSON.stringify(resolved.body)
+                        : null
+                }
             );
-        console.log(
-            `[REQUEST] ${resolved.method} ${resolved.url}`
-        );
-        const hasBody = resolved.body != null;
-        return fetch(
-            resolved.url,
-            {
+
+            const body = await response.json().catch(() => null);
+
+            return {
+                name: resolved.name,
                 method: resolved.method,
-                headers: {
-                    ...resolved.headers,
-                    ...(hasBody ? { "Content-Type": "application/json" } : {})
-                },
-                body: hasBody
-                    ? JSON.stringify(resolved.body)
-                    : null
-            }
-        );
+                url: resolved.url,
+                status: response.status,
+                duration: Date.now() - start,
+                success: true,
+                body
+            };
+        } catch (err: any) {
+            return {
+                name: resolved.name,
+                method: resolved.method,
+                url: resolved.url,
+                status: 0,
+                duration: Date.now() - start,
+                success: false,
+                error: err.message ?? String(err)
+            };
+        }
     }
 }
