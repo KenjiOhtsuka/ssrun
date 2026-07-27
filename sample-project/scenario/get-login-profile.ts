@@ -6,12 +6,21 @@ import type { ScenarioDefinition }
     from "../../src/core/Scenario.js";
 
 export const loginProfileScenario: ScenarioDefinition = {
-    name: "login-profile",
+    name: "get-login-profile",
 
     steps: [
         {
             request: getUser,
-            input: getUserInput
+            input: getUserInput,
+            assert: {
+                status: 200,
+                json: {
+                    id: 1,
+                    name: "Taro",
+                    email: "taro@example.com",
+                    role: "admin"
+                }
+            }
         },
         {
             duration: 1000
@@ -21,12 +30,26 @@ export const loginProfileScenario: ScenarioDefinition = {
             input: loginInput,
             exports: {
                 token: "token",
+            },
+            assert: {
+                status: 200,
+                json: {
+                    tokenType: "Bearer"
+                }
             }
         },
         {
             request: profile,
             input: profileInput,
-            exports: {}
+            exports: {},
+            assert: {
+                status: 200,
+                json: {
+                    id: 1,
+                    name: "Taro",
+                    email: "taro@example.com"
+                }
+            }
         }
     ]
 };

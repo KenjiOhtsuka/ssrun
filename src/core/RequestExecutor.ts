@@ -38,7 +38,38 @@ export class RequestExecutor {
             }
         }
 
+        if (input?.query) {
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(input.query)) {
+                params.set(key, String(value));
+            }
+            const qs = params.toString();
+            if (qs) {
+                url += (url.includes("?") ? "&" : "?") + qs;
+            }
+        }
+
         return url;
+    }
+
+    private resolveBody(
+        body: unknown,
+        context: Context
+    ): unknown {
+        if (body == null) return undefined;
+        if (typeof body === "string") return this.resolveString(body, context);
+        if (typeof body === "object") {
+            const resolved: Record<string, unknown> = {};
+            for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+                if (typeof value === "string") {
+                    resolved[key] = this.resolveString(value, context);
+                } else {
+                    resolved[key] = value;
+                }
+            }
+            return resolved;
+        }
+        return body;
     }
 
     resolve(
@@ -76,7 +107,9 @@ export class RequestExecutor {
                 input
             ),
 
-            headers: resolvedHeaders
+            headers: resolvedHeaders,
+
+            body: this.resolveBody(input?.body ?? null, context)
         };
     }
 
@@ -95,11 +128,18 @@ export class RequestExecutor {
         console.log(
             `[REQUEST] ${resolved.method} ${resolved.url}`
         );
+        const hasBody = resolved.body != null;
         return fetch(
             resolved.url,
             {
                 method: resolved.method,
-                headers: resolved.headers
+                headers: {
+                    ...resolved.headers,
+                    ...(hasBody ? { "Content-Type": "application/json" } : {})
+                },
+                body: hasBody
+                    ? JSON.stringify(resolved.body)
+                    : null
             }
         );
     }

@@ -1,17 +1,15 @@
-import { HttpMethod } from "../../src/core/HttpMethod.js";
-import type { RequestDefinition } from "../../src/core/Request.js";
-import { postLoginEndpoint } from "../endpoint/post-login-endpoint.ts";
+import type { RequestDefinition, RequestInput } from "../../src/core/Request.js";
+import { postLoginEndpoint } from "../endpoint/post-login-endpoint.js";
 
 export const login: RequestDefinition = {
   name: "login",
-
-  // url: "http://localhost:8080/login",
   endpoint: postLoginEndpoint,
-  origin: "{{originA}}"
+  origin: "{{origin}}"
 };
 
-export const loginInput = {
-  headers: {
-    Authorization: "Bearer {{token}}"
-  },
+export const loginInput: RequestInput = {
+  body: {
+    username: "{{API_USER}}",
+    password: "{{API_PASSWORD}}"
+  }
 };
