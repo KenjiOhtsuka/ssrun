@@ -104,14 +104,22 @@
             }
         },
         {
-            "request": { "method": "POST", "url": "/api/payment/process" },
+            "request": {
+                "method": "POST",
+                "url": "/api/payment/process",
+                "bodyPatterns": [{ "notMatchesJsonPath": "$[?(@.simulateFailure)]" }]
+            },
             "response": {
                 "status": 200,
                 "jsonBody": { "transactionId": "txn_abc123", "status": "success", "amount": 99.99, "currency": "USD" }
             }
         },
         {
-            "request": { "method": "POST", "url": "/api/payment/process" },
+            "request": {
+                "method": "POST",
+                "url": "/api/payment/process",
+                "bodyPatterns": [{ "matchesJsonPath": "$[?(@.simulateFailure)]" }]
+            },
             "response": {
                 "status": 402,
                 "jsonBody": { "error": "PaymentFailed", "message": "Insufficient funds" }
