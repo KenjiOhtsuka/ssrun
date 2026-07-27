@@ -6,7 +6,7 @@
 - The framework enables to create each endpoint test case and scenario and suite wise execution.
 - The user write test in following structure:
   - Endpoint -> Request -> Scenario -> Suite
-  - Suite contains Scenario and Request, and Scenario composed of Requests.
+  - Suite contains Scenario, and Scenario composed of Requests.
   - Request is the actual API call to Endpoint with input parameters and expected output.
 
 ## Endpoint Definition
