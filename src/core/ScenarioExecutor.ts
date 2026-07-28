@@ -30,8 +30,10 @@ export class ScenarioExecutor {
 
         for (const step of scenario.steps) {
             if (failed) {
-                const stepName = step.request?.name ?? `wait ${step.duration}ms`;
                 const stepType: "request" | "wait" = step.request != null ? "request" : "wait";
+                const stepName = stepType === "request"
+                    ? (step.request?.name ?? "request")
+                    : `wait ${step.duration}ms`;
                 steps.push({
                     name: stepName,
                     type: stepType,
