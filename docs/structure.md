@@ -78,8 +78,8 @@ export interface HeaderDefinition {
 ```ts
 export class Context {
     set(key: string, value: unknown): void;
-    get(key: string): unknown;
-    entries(): Record<string, unknown>;
+    get<T>(key: string): T | undefined;
+    entries(): MapIterator<[string, unknown]>;
 }
 ```
 
