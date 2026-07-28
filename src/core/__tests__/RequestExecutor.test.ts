@@ -173,6 +173,18 @@ describe("RequestExecutor.resolve", () => {
       address: { city: "Tokyo", zip: "100-0001" },
     });
   });
+
+  it("resolves array body with interpolation", () => {
+    const ctx = new Context();
+    ctx.set("city", "Osaka");
+    ctx.set("country", "Japan");
+    const result = executor.resolve(
+      makeRequest({ endpoint: { name: "test", method: HttpMethod.POST, path: "/api/tags" } }),
+      { body: [{ city: "{{city}}" }, { country: "{{country}}" }] },
+      ctx
+    );
+    assert.deepStrictEqual(result.body, [{ city: "Osaka" }, { country: "Japan" }]);
+  });
 });
 
 describe("RequestExecutor.execute", () => {
