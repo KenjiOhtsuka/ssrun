@@ -46,6 +46,12 @@ Use this after making code changes and before committing. It ensures the changes
    - **Type safety**: avoid `any` where practical. Use proper TypeScript types.
    - **Naming**: match existing conventions (camelCase, descriptive names)
    - **Scope creep**: each change should address only its intended purpose
+   - **Security**:
+     - No hardcoded secrets (tokens, passwords) in source files — use env vars or config files
+     - Env files (`.env`, `.*.env`) are gitignored; never commit them
+     - Config values containing credentials are not logged in output
+     - WireMock auth mappings have correct priority so unauthenticated requests don't bypass auth
+     - `{{ }}` interpolation values are treated as opaque strings (no eval/shell injection)
 
 6. **WireMock-specific checks** (if modifying mappings)
 
@@ -63,4 +69,6 @@ Use this after making code changes and before committing. It ensures the changes
 - [ ] Error handling covers edge cases
 - [ ] Change is scoped to its intended purpose
 - [ ] No unnecessary files modified
+- [ ] No hardcoded secrets in source
+- [ ] Auth-related WireMock mappings have correct priority ordering
 - [ ] Commit message matches project style
