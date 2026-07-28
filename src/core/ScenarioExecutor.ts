@@ -1,5 +1,6 @@
 import type { Context } from "./Context.js";
 import type { AssertionDefinition, ScenarioDefinition } from "./Scenario.js";
+import type { RequestResult, ScenarioResult, StepResult } from "./Result.js";
 
 import { RequestExecutor } from "./RequestExecutor.js";
 
@@ -22,83 +23,160 @@ export class ScenarioExecutor {
     async execute(
         scenario: ScenarioDefinition,
         context: Context
-    ): Promise<void> {
+    ): Promise<ScenarioResult> {
+        const steps: StepResult[] = [];
+        let failed = false;
+        const start = Date.now();
+
         for (const step of scenario.steps) {
+            if (failed) {
+                const stepType: "request" | "wait" = step.request != null ? "request" : "wait";
+                const stepName = stepType === "request"
+                    ? (step.request?.name ?? "(unnamed request)")
+                    : `wait ${step.duration}ms`;
+                steps.push({
+                    name: stepName,
+                    type: stepType,
+                    duration: 0,
+                    success: false,
+                    skipped: true
+                });
+                continue;
+            }
+
             if (step.duration != null) {
-                console.log(
-                    `[SCENARIO] Waiting for ${step.duration} ms`
-                );
+                const waitStart = Date.now();
+                console.log(`  [WAIT] ${step.duration}ms`);
                 await new Promise(resolve => setTimeout(resolve, step.duration));
+                steps.push({
+                    name: `wait ${step.duration}ms`,
+                    type: "wait",
+                    duration: Date.now() - waitStart,
+                    success: true,
+                    skipped: false
+                });
             } else if (step.request != null) {
                 const request = step.request;
-                console.log(
-                    `[SCENARIO] ${request.name}`
+                const result = await this.requestExecutor.execute(
+                    request,
+                    step.input ?? null,
+                    context
                 );
 
-                const response =
-                    await this.requestExecutor.execute(
-                        step.request,
-                        step.input ?? null,
-                        context
-                    );
-                if (step.assert) {
-                    await this.assertResponse(step.assert, response);
+                if (!result.success) {
+                    steps.push({
+                        name: result.name,
+                        type: "request",
+                        duration: result.duration,
+                        success: false,
+                        statusCode: result.status,
+                        error: result.error,
+                        skipped: false
+                    });
+                    failed = true;
+                    console.log(`  [FAIL] ${result.name} (${result.duration}ms) — ${result.error}`);
+                    continue;
                 }
-                if (step.exports) {
-                    const body = await response.json();
-                    for (
-                        let [contextKey, responseKey] of Object.entries(step.exports)
-                    ) {
-                        context.set(contextKey, body[responseKey]);
+
+                let assertError: string | undefined;
+                if (step.assert) {
+                    try {
+                        await this.assertResponse(step.assert, result);
+                    } catch (err: any) {
+                        assertError = err.message;
                     }
                 }
 
-                console.log(
-                    `[STATUS] ${response.status}`
-                );
+                if (step.exports) {
+                    const body = result.body;
+                    if (body && typeof body === "object") {
+                        for (
+                            let [contextKey, responseKey] of Object.entries(step.exports)
+                        ) {
+                            context.set(contextKey, (body as Record<string, unknown>)[responseKey]);
+                        }
+                    }
+                }
+
+                const stepSuccess = assertError == null;
+                steps.push({
+                    name: result.name,
+                    type: "request",
+                    duration: result.duration,
+                    success: stepSuccess,
+                    statusCode: result.status,
+                    error: assertError,
+                    skipped: false
+                });
+
+                if (stepSuccess) {
+                    console.log(`  [PASS] ${result.name} (${result.duration}ms)`);
+                } else {
+                    console.log(`  [FAIL] ${result.name} (${result.duration}ms) — ${assertError}`);
+                    failed = true;
+                }
             } else {
                 throw new Error("Invalid step");
             }
         }
+
+        const duration = Date.now() - start;
+        const passed = steps.filter(s => s.success && !s.skipped).length;
+        const failedCount = steps.filter(s => !s.success && !s.skipped).length;
+        const skipped = steps.filter(s => s.skipped).length;
+        const success = failedCount === 0;
+
+        console.log(`\n===== ${scenario.name}: ${passed} passed, ${failedCount} failed, ${skipped} skipped (${steps.length} total) =====\n`);
+
+        return {
+            name: scenario.name,
+            steps,
+            duration,
+            success,
+            passed,
+            failed: failedCount,
+            skipped
+        };
     }
 
     private async assertResponse(
-        assert: AssertionDefinition | ((res: Response, body: any) => void | Promise<void>),
-        response: Response
+        assert: AssertionDefinition | ((result: RequestResult, body: any) => void | Promise<void>),
+        result: RequestResult
     ) {
-        // Response は一度 json() を読むと消費されるので clone が必要
-        const cloned = response.clone();
-        const body = await cloned.json().catch(() => null);
+        const body = result.body;
 
         try {
             // ① 関数形式の assertion
             if (typeof assert === "function") {
-                await assert(response, body);
+                await assert(result, body);
                 return;
             }
 
             // ② オブジェクト形式の assertion（status, headers, json）
-            if (assert.status !== undefined && assert.status !== response.status) {
-                throw new Error(`Expected status ${assert.status}, got ${response.status}`);
+            if (assert.status !== undefined && assert.status !== result.status) {
+                throw new Error(`Expected status ${assert.status}, got ${result.status}`);
             }
 
-            if (assert.headers) {
-                for (const [key, expected] of Object.entries(assert.headers)) {
-                    const actual = response.headers.get(key);
-                    if (actual !== expected) {
-                        throw new Error(`Header ${key}: expected ${expected}, got ${actual}`);
+            if (assert.headers && result.headers) {
+                for (const [headerKey, expectedValue] of Object.entries(assert.headers)) {
+                    const actualValue = result.headers[headerKey.toLowerCase()];
+                    if (actualValue === undefined) {
+                        throw new Error(`Expected header ${headerKey} to exist`);
+                    }
+                    if (actualValue !== expectedValue) {
+                        throw new Error(`Expected header ${headerKey} "${expectedValue}", got "${actualValue}"`);
                     }
                 }
             }
 
-            if (assert.json) {
+            if (assert.json && body && typeof body === "object") {
                 for (const [key, expected] of Object.entries(assert.json)) {
                     if (expected === "exists") {
                         if (!(key in body)) {
                             throw new Error(`Expected body.${key} to exist`);
                         }
-                    } else if (body[key] !== expected) {
-                        throw new Error(`body.${key}: expected ${expected}, got ${body[key]}`);
+                    } else if ((body as Record<string, unknown>)[key] !== expected) {
+                        throw new Error(`body.${key}: expected ${expected}, got ${(body as Record<string, unknown>)[key]}`);
                     }
                 }
             }

@@ -5,7 +5,7 @@ import { getProfileEndpoint } from "../endpoint/get-profile-endpoint.js";
 export const profile: RequestDefinition = {
     name: "get-profile",
     endpoint: getProfileEndpoint,
-    origin: "{{originA}}"
+    origin: "{{origin}}"
 };
 
 export const profileInput: RequestInput = {

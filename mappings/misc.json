@@ -1,0 +1,168 @@
+{
+    "mappings": [
+        {
+            "request": { "method": "GET", "url": "/api/health" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "status": "healthy", "version": "1.0.0", "uptime": 86400 }
+            }
+        },
+        {
+            "request": { "method": "GET", "url": "/api/config" },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "maxUploadSize": 10485760,
+                    "allowedTypes": ["image/png", "image/jpeg", "application/pdf"],
+                    "features": { "darkMode": true, "betaFeatures": false }
+                }
+            }
+        },
+        {
+            "request": { "method": "POST", "url": "/api/upload" },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "fileId": "file_abc123",
+                    "filename": "document.pdf",
+                    "size": 1024000,
+                    "uploadedAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": { "method": "GET", "urlPattern": "/api/search($|\\?.*)" },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "results": [
+                        { "id": 1, "title": "Search Result 1", "type": "product" },
+                        { "id": 2, "title": "Search Result 2", "type": "order" }
+                    ],
+                    "total": 2
+                }
+            }
+        },
+        {
+            "request": { "method": "POST", "url": "/api/validate" },
+            "response": {
+                "status": 422,
+                "jsonBody": {
+                    "error": "ValidationFailed",
+                    "message": "Request validation failed",
+                    "details": [
+                        { "field": "email", "message": "Invalid email format" },
+                        { "field": "password", "message": "Password too short" }
+                    ]
+                }
+            }
+        },
+        {
+            "request": { "method": "GET", "urlPattern": "/api/slow/endpoint" },
+            "response": {
+                "status": 200,
+                "fixedDelayMilliseconds": 5000,
+                "jsonBody": { "message": "This response is delayed by 5 seconds" }
+            }
+        },
+        {
+            "priority": 1,
+            "request": {
+                "method": "GET",
+                "url": "/api/admin/dashboard",
+                "headers": { "Authorization": { "equalTo": "Bearer admin_token" } }
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": { "totalUsers": 150, "totalOrders": 320, "revenue": 15000.00 }
+            }
+        },
+        {
+            "priority": 5,
+            "request": { "method": "GET", "url": "/api/admin/dashboard" },
+            "response": {
+                "status": 403,
+                "jsonBody": { "error": "Forbidden", "message": "Admin access required" }
+            }
+        },
+        {
+            "request": { "method": "GET", "url": "/api/notifications" },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "notifications": [
+                        { "id": 1, "type": "info", "message": "Welcome!", "read": false },
+                        { "id": 2, "type": "alert", "message": "New order received", "read": false }
+                    ],
+                    "unreadCount": 2
+                }
+            }
+        },
+        {
+            "request": { "method": "PUT", "urlPattern": "/api/notifications/[0-9]+/read" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "id": 1, "read": true, "updatedAt": "2026-01-01T00:00:00Z" }
+            }
+        },
+        {
+            "priority": 1,
+            "request": {
+                "method": "POST",
+                "url": "/api/payment/process",
+                "bodyPatterns": [{ "matchesJsonPath": "$[?(@.simulateFailure)]" }]
+            },
+            "response": {
+                "status": 402,
+                "jsonBody": { "error": "PaymentFailed", "message": "Insufficient funds" }
+            }
+        },
+        {
+            "request": { "method": "POST", "url": "/api/payment/process" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "transactionId": "txn_abc123", "status": "success", "amount": 99.99, "currency": "USD" }
+            }
+        },
+        {
+            "request": { "method": "GET", "urlPattern": "/api/analytics/summary" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "period": "2026-01", "visits": 12500, "uniqueVisitors": 8200, "pageViews": 45000 }
+            }
+        },
+        {
+            "request": { "method": "POST", "url": "/api/webhook" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "received": true, "processedAt": "2026-01-01T00:00:00Z" }
+            }
+        },
+        {
+            "request": { "method": "POST", "url": "/api/batch" },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "processed": 3,
+                    "failed": 0,
+                    "results": [
+                        { "id": 1, "status": "ok" },
+                        { "id": 2, "status": "ok" },
+                        { "id": 3, "status": "ok" }
+                    ]
+                }
+            }
+        },
+        {
+            "request": { "method": "GET", "urlPattern": "/api/cache/[a-zA-Z0-9]+" },
+            "response": {
+                "status": 200,
+                "jsonBody": { "key": "test_key", "value": "cached_value", "ttl": 3600 }
+            }
+        },
+        {
+            "request": { "method": "DELETE", "urlPattern": "/api/cache/[a-zA-Z0-9]+" },
+            "response": { "status": 204 }
+        }
+    ]
+}

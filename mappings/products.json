@@ -1,0 +1,75 @@
+{
+    "mappings": [
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/products\\?.*category=electronics.*"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "products": [
+                        { "id": 101, "name": "Laptop", "price": 999.99, "category": "electronics" },
+                        { "id": 102, "name": "Phone", "price": 699.99, "category": "electronics" }
+                    ],
+                    "total": 2
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/products/[0-9]+"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "id": 101,
+                    "name": "Laptop",
+                    "price": 999.99,
+                    "category": "electronics",
+                    "stock": 50,
+                    "description": "High-performance laptop"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "/api/products"
+            },
+            "response": {
+                "status": 201,
+                "jsonBody": {
+                    "id": 103,
+                    "name": "New Product",
+                    "price": 49.99,
+                    "category": "general",
+                    "createdAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "PATCH",
+                "urlPattern": "/api/products/[0-9]+"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "id": 101,
+                    "name": "Laptop Updated",
+                    "price": 899.99,
+                    "updatedAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "DELETE",
+                "urlPattern": "/api/products/[0-9]+"
+            },
+            "response": { "status": 204 }
+        }
+    ]
+}

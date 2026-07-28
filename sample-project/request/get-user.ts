@@ -7,7 +7,7 @@ export const getUser: RequestDefinition = {
   name: "get-user",
   endpoint: getUserEndpoint
   ,
-  origin: "{{originA}}"
+  origin: "{{origin}}"
 };
 
 export const getUserInput = {

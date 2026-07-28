@@ -12,19 +12,42 @@ export const loginProfileScenario: ScenarioDefinition = {
     steps: [
         {
             request: getUser,
-            input: getUserInput
+            input: getUserInput,
+            assert: {
+                status: 200,
+                json: {
+                    id: 1,
+                    name: "Taro",
+                    email: "taro@example.com",
+                    role: "admin"
+                }
+            }
         },
         {
             request: login,
             input: loginInput,
             exports: {
                 token: "token",
+            },
+            assert: {
+                status: 200,
+                json: {
+                    tokenType: "Bearer"
+                }
             }
         },
         {
             request: profile,
             input: profileInput,
-            exports: {}
+            exports: {},
+            assert: {
+                status: 200,
+                json: {
+                    id: 1,
+                    name: "Taro",
+                    email: "taro@example.com"
+                }
+            }
         }
     ]
 };

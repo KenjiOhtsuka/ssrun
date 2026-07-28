@@ -1,0 +1,115 @@
+{
+    "mappings": [
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/users/[0-9]+"
+            },
+            "response": {
+                "status": 200,
+                "headers": { "Content-Type": "application/json" },
+                "jsonBody": {
+                    "id": 1,
+                    "name": "Taro",
+                    "email": "taro@example.com",
+                    "role": "admin"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/users($|\\?.*)"
+            },
+            "response": {
+                "status": 200,
+                "headers": { "Content-Type": "application/json" },
+                "jsonBody": {
+                    "users": [
+                        { "id": 1, "name": "Taro", "email": "taro@example.com" },
+                        { "id": 2, "name": "Jiro", "email": "jiro@example.com" },
+                        { "id": 3, "name": "Saburo", "email": "saburo@example.com" }
+                    ],
+                    "total": 3,
+                    "page": 1,
+                    "perPage": 10
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "/api/users",
+                "bodyPatterns": [
+                    { "matchesJsonPath": "$.name" },
+                    { "matchesJsonPath": "$.email" }
+                ]
+            },
+            "response": {
+                "status": 201,
+                "headers": { "Content-Type": "application/json" },
+                "jsonBody": {
+                    "id": 4,
+                    "name": "Shiro",
+                    "email": "shiro@example.com",
+                    "createdAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "PUT",
+                "urlPattern": "/api/users/[0-9]+"
+            },
+            "response": {
+                "status": 200,
+                "headers": { "Content-Type": "application/json" },
+                "jsonBody": {
+                    "id": 1,
+                    "name": "Taro Updated",
+                    "email": "taro.updated@example.com",
+                    "updatedAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "DELETE",
+                "urlPattern": "/api/users/[0-9]+"
+            },
+            "response": { "status": 204 }
+        },
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/users/[0-9]+/posts"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "posts": [
+                        { "id": 1, "title": "First Post", "content": "Hello World" },
+                        { "id": 2, "title": "Second Post", "content": "Testing" }
+                    ],
+                    "total": 2
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/users/[0-9]+/followers"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "followers": [
+                        { "id": 2, "name": "Jiro" },
+                        { "id": 3, "name": "Saburo" }
+                    ],
+                    "total": 2
+                }
+            }
+        }
+    ]
+}
