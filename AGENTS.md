@@ -29,7 +29,7 @@ Targets:
 
 ## Project Structure
 
-```
+```text
 src/
   main.ts              # CLI entry point, argument parsing, executor orchestration
   core/
