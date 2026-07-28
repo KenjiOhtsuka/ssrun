@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { RequestExecutor } from "../RequestExecutor.js";
 import { Context } from "../Context.js";
@@ -172,5 +172,127 @@ describe("RequestExecutor.resolve", () => {
       name: "Bob",
       address: { city: "{{city}}", zip: "100-0001" },
     });
+  });
+});
+
+describe("RequestExecutor.execute", () => {
+  let originalFetch: typeof globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("returns success result on 2xx response", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.strictEqual(result.status, 200);
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.body, { ok: true });
+  });
+
+  it("returns result with error on non-2xx response", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response(JSON.stringify({ error: "not found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" }
+    });
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.strictEqual(result.status, 404);
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.body, { error: "not found" });
+  });
+
+  it("returns error result on fetch rejection", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => { throw new Error("network error"); };
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.strictEqual(result.status, 0);
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.error, "network error");
+  });
+
+  it("returns null body when response is not JSON", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("plain text", { status: 200 });
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.strictEqual(result.status, 200);
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.body, null);
+  });
+
+  it("sends object body as JSON with Content-Type header", async () => {
+    originalFetch = globalThis.fetch;
+    let capturedInit: RequestInit | undefined;
+    globalThis.fetch = async (_url, init) => {
+      capturedInit = init;
+      return new Response("{}", { status: 200 });
+    };
+
+    const executor = new RequestExecutor();
+    await executor.execute(
+      makeRequest({ endpoint: { name: "test", method: HttpMethod.POST, path: "/api/data" } }),
+      { body: { key: "value" } }
+    );
+
+    assert.strictEqual(capturedInit?.body, '{"key":"value"}');
+    const headers = capturedInit?.headers as Record<string, string>;
+    assert.strictEqual(headers["Content-Type"], "application/json");
+  });
+
+  it("passes string body through unchanged", async () => {
+    originalFetch = globalThis.fetch;
+    let capturedInit: RequestInit | undefined;
+    globalThis.fetch = async (_url, init) => {
+      capturedInit = init;
+      return new Response("{}", { status: 200 });
+    };
+
+    const executor = new RequestExecutor();
+    await executor.execute(
+      makeRequest({ endpoint: { name: "test", method: HttpMethod.POST, path: "/api/data" } }),
+      { body: '{"raw":"string"}' }
+    );
+
+    assert.strictEqual(capturedInit?.body, '{"raw":"string"}');
+  });
+
+  it("populates response headers in result", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("{}", {
+      status: 200,
+      headers: { "x-request-id": "abc123", "content-type": "application/json" }
+    });
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.ok(result.headers);
+    assert.strictEqual(result.headers!["x-request-id"], "abc123");
+  });
+
+  it("reports timing in duration", async () => {
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("{}", { status: 200 });
+
+    const executor = new RequestExecutor();
+    const result = await executor.execute(makeRequest());
+
+    assert.ok(result.duration >= 0);
   });
 });

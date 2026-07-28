@@ -188,8 +188,10 @@ assert: {
 ### Exports
 
 ```typescript
-exports: { variableName: "json.path.field" }
+exports: { variableName: "responseKey" }
 ```
+
+Exports map context variable names to top-level response body keys.
 
 ---
 

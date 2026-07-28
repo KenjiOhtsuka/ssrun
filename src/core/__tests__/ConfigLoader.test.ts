@@ -22,6 +22,14 @@ describe("ConfigLoader", () => {
 
   beforeEach(() => {
     savedEnv = { ...process.env };
+    // Start with a clean env to prevent inherited values from affecting assertions.
+    // Only preserve essential system vars required by Node.js/OS.
+    const preserve = new Set(["PATH", "PATHEXT", "SystemRoot", "windir", "SystemDrive", "TEMP", "TMP", "ComSpec"]);
+    for (const key of Object.keys(process.env)) {
+      if (!preserve.has(key)) {
+        delete process.env[key];
+      }
+    }
   });
 
   afterEach(() => {

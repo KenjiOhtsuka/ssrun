@@ -1,5 +1,5 @@
 import { Context } from "./Context.js";
-import type { SuiteDefinition } from "./Suite.js";
+import type { SuiteDefinition, SuiteStep } from "./Suite.js";
 import type { ScenarioResult, SuiteResult } from "./Result.js";
 import { ScenarioExecutor } from "./ScenarioExecutor.js";
 
@@ -48,6 +48,7 @@ export class SuiteExecutor {
                         failed: 1,
                         skipped: 0
                     });
+                    console.log(`  [FAIL] ${step.scenario.name} — ${err.message ?? String(err)}`);
                 }
             }
         }
@@ -59,6 +60,7 @@ export class SuiteExecutor {
         const duration = Date.now() - start;
         const passed = results.filter(r => r.success).length;
         const failed = results.filter(r => !r.success).length;
+        const success = failed === 0;
 
         console.log(`========================================`);
         console.log(`  ${suite.name}: ${passed} passed, ${failed} failed (${results.length} total)`);
@@ -68,13 +70,14 @@ export class SuiteExecutor {
             name: suite.name,
             scenarios: results,
             duration,
+            success,
             passed,
             failed
         };
     }
 
     private async executeParallel(
-        steps: { scenario: any }[],
+        steps: SuiteStep[],
         globalContext: Context
     ): Promise<ScenarioResult[]> {
         const results = await Promise.allSettled(
@@ -88,6 +91,8 @@ export class SuiteExecutor {
             if (r.status === "fulfilled") {
                 return r.value;
             } else {
+                const reason = r.reason instanceof Error ? r.reason.message : String(r.reason);
+                console.log(`  [FAIL] ${steps[i]!!.scenario.name} — ${reason}`);
                 return {
                     name: steps[i]!!.scenario.name,
                     steps: [],

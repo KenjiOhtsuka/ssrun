@@ -6,7 +6,8 @@ export interface RequestResult {
     duration: number;
     success: boolean;
     body?: unknown;
-    error?: string;
+    headers?: Record<string, string>;
+    error?: string | undefined;
 }
 
 export interface StepResult {
@@ -15,7 +16,7 @@ export interface StepResult {
     duration: number;
     success: boolean;
     statusCode?: number;
-    error?: string;
+    error?: string | undefined;
     skipped: boolean;
 }
 
@@ -33,6 +34,7 @@ export interface SuiteResult {
     name: string;
     scenarios: ScenarioResult[];
     duration: number;
+    success: boolean;
     passed: number;
     failed: number;
 }

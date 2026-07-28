@@ -155,6 +155,18 @@ export class ScenarioExecutor {
                 throw new Error(`Expected status ${assert.status}, got ${result.status}`);
             }
 
+            if (assert.headers && result.headers) {
+                for (const [headerKey, expectedValue] of Object.entries(assert.headers)) {
+                    const actualValue = result.headers[headerKey.toLowerCase()];
+                    if (actualValue === undefined) {
+                        throw new Error(`Expected header ${headerKey} to exist`);
+                    }
+                    if (actualValue !== expectedValue) {
+                        throw new Error(`Expected header ${headerKey} "${expectedValue}", got "${actualValue}"`);
+                    }
+                }
+            }
+
             if (assert.json && body && typeof body === "object") {
                 for (const [key, expected] of Object.entries(assert.json)) {
                     if (expected === "exists") {

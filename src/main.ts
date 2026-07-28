@@ -9,6 +9,7 @@ import { ConfigLoader } from "./core/ConfigLoader.js";
 import { RequestExecutor } from "./core/RequestExecutor.js";
 import { ScenarioExecutor } from "./core/ScenarioExecutor.js";
 import { SuiteExecutor } from "./core/SuiteExecutor.js";
+import type { RequestResult } from "./core/Result.js";
 
 // Argument parsing
 const envIndex = process.argv.indexOf("--env");
@@ -70,10 +71,15 @@ const suiteExecutor = new SuiteExecutor(scenarioExecutor);
 
 let hasFailures = false;
 
+function reportRequestResult(result: RequestResult): void {
+    console.log(`  [${result.success ? "PASS" : "FAIL"}] ${result.status} (${result.duration}ms)${result.error ? " — " + result.error : ""}\n`);
+    if (!result.success) hasFailures = true;
+}
+
 for (const target of runTargets) {
     const [type, name] = target.split(":");
     switch (type) {
-        case "request":
+        case "request": {
             const modulePath = new URL(`./request/${name}.ts`, projectRootURL);
             const module = await import(modulePath.href);
             // if input is specified, we need to resolve the input and pass it to the request executor
@@ -86,8 +92,7 @@ for (const target of runTargets) {
                     const input = inputModule.default ?? Object.values(inputModule)[0];
                     console.log(`[REQUEST] ${name}`);
                     const result = await requestExecutor.execute(module.default ?? Object.values(module)[0], input, globalContext);
-                    console.log(`  [${result.success ? "PASS" : "FAIL"}] ${result.status} (${result.duration}ms)${result.error ? " — " + result.error : ""}\n`);
-                    if (!result.success) hasFailures = true;
+                    reportRequestResult(result);
                     break;
                 }
              } else {
@@ -136,11 +141,11 @@ for (const target of runTargets) {
 
                 console.log(`[REQUEST] ${name}`);
                 const result = await requestExecutor.execute(module.default ?? Object.values(module)[0], requestInput, globalContext);
-                console.log(`  [${result.success ? "PASS" : "FAIL"}] ${result.status} (${result.duration}ms)${result.error ? " — " + result.error : ""}\n`);
-                if (!result.success) hasFailures = true;
+                reportRequestResult(result);
                 break;
             }
-        case "scenario":
+        }
+        case "scenario": {
             const scenarioModulePath = new URL(`./scenario/${name}.ts`, projectRootURL);
             const scenarioModule = await import(scenarioModulePath.href);
             const scenario = scenarioModule.default ?? Object.values(scenarioModule)[0];
@@ -148,13 +153,15 @@ for (const target of runTargets) {
             const scenarioResult = await scenarioExecutor.execute(scenario, globalContext);
             if (!scenarioResult.success) hasFailures = true;
             break;
-        case "suite":
+        }
+        case "suite": {
             const suiteModulePath = new URL(`./suite/${name}.ts`, projectRootURL);
             const suiteModule = await import(suiteModulePath.href);
             const suite = suiteModule.default ?? Object.values(suiteModule)[0];
             const suiteResult = await suiteExecutor.execute(suite, globalContext);
-            if (suiteResult.failed > 0) hasFailures = true;
+            if (!suiteResult.success) hasFailures = true;
             break;
+        }
         default:
             throw new Error(`Unknown run target type: ${type}`);
     }

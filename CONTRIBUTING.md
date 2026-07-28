@@ -17,7 +17,7 @@ npm test
 Integration tests (requires WireMock):
 
 ```bash
-java -jar wiremock-standalone-3.13.2.jar --root-dir sample-project
+java -jar wiremock-standalone-3.13.2.jar
 # In another terminal (Windows):
 cmd /c test.cmd
 ```
@@ -32,7 +32,7 @@ npx tsx src/main.ts --run scenario:login-profile --project sample-project
 
 - `src/core/` — Framework source code
 - `src/core/__tests__/` — Unit tests (`node:test` + `node:assert`)
-- `sample-project/` — Sample test project with WireMock mappings
+- `sample-project/` — Sample test project (endpoints, requests, scenarios, config)
 - `mappings/` — WireMock stub definitions (JSON)
 - `__files/` — WireMock response body files
 
@@ -52,4 +52,6 @@ npm test
 
 The sample project uses WireMock for mock API responses. Mappings are in `mappings/` as JSON files. Response bodies can be static JSON or loaded from `__files/`.
 
-WireMock 3.x note: catch-all mappings (empty `urlPattern` or `url`) will match before more specific patterns. Remove catch-alls or use priority to avoid conflicts.
+WireMock 3.x notes:
+- Catch-all mappings (e.g., `"urlPattern": ".*"`) will match before more specific patterns. Remove catch-alls or use explicit priority to avoid conflicts.
+- Lower numeric priorities win (1 is highest). Use `priority` on mappings that should take precedence over otherwise matching catch-alls.

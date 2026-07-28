@@ -126,18 +126,33 @@ export class RequestExecutor {
 
         try {
             const hasBody = resolved.body != null;
+            let fetchBody: string | null = null;
+            let headersToSend: Record<string, string> = { ...resolved.headers };
+            if (hasBody) {
+                if (typeof resolved.body === "string") {
+                    fetchBody = resolved.body;
+                } else {
+                    fetchBody = JSON.stringify(resolved.body);
+                    if (!Object.keys(headersToSend).some(k => k.toLowerCase() === "content-type")) {
+                        headersToSend["Content-Type"] = "application/json";
+                    }
+                }
+            }
             const response = await fetch(
                 resolved.url,
                 {
                     method: resolved.method,
-                    headers: resolved.headers,
-                    body: hasBody
-                        ? JSON.stringify(resolved.body)
-                        : null
+                    headers: headersToSend,
+                    body: fetchBody
                 }
             );
 
             const body = await response.json().catch(() => null);
+
+            const responseHeaders: Record<string, string> = {};
+            response.headers.forEach((value, key) => {
+                responseHeaders[key] = value;
+            });
 
             return {
                 name: resolved.name,
@@ -146,7 +161,8 @@ export class RequestExecutor {
                 status: response.status,
                 duration: Date.now() - start,
                 success: true,
-                body
+                body,
+                headers: responseHeaders
             };
         } catch (err: any) {
             return {
