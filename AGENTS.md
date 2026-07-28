@@ -64,6 +64,7 @@ src/
 - **Assertions**: Scenarios support `assert` blocks with `status`, `headers`, and `json` checks.
 - **Failure handling**: Scenarios stop on first failure; remaining steps are skipped. Suites execute all scenarios.
 - **Exit code**: `0` = all pass, `1` = any failure.
+- **Self-review**: After making changes, load the `self-review` skill to run through a review checklist before committing.
 
 ## User Project Layout
 
