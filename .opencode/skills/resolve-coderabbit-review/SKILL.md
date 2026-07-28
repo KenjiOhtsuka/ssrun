@@ -62,7 +62,7 @@ gh pr view --json number --jq .number
         npm test
         npm run build
         ```
-     3. If tests pass, commit and push the changes.
+     3. If tests pass, commit **and push** the changes. CodeRabbit re-checks the PR automatically after a new commit is pushed — local-only changes will not be detected and the comments will remain unresolved.
      4. Reply to each inline comment thread individually using its comment ID:
         ```bash
         gh api "/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies" \
