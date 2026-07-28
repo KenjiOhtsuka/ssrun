@@ -86,7 +86,7 @@ export class Context {
 - There are 2 kinds of context:
   - Global Context: It is shared across all the test cases and scenarios.
   - Request Context: It is specific to a test case or scenario.
-- Request context is prior to Global context.
+- Request context takes priority over global context when the same keys overlap.
 
 ## Config Loader
 

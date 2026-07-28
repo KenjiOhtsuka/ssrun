@@ -140,7 +140,7 @@ my-api-tests/
 import { login, loginInput } from "../request/post-login.js";
 import { profile, profileInput } from "../request/get-profile.js";
 
-import type { ScenarioDefinition } from "../../src/core/Scenario.js";
+import type { ScenarioDefinition } from "@kenjiotsuka/ssrun/core/Scenario.js";
 
 export const loginProfileScenario: ScenarioDefinition = {
   name: "login-profile",

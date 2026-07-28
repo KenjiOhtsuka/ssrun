@@ -31,7 +31,7 @@
             }
         },
         {
-            "request": { "method": "GET", "urlPattern": "/api/search" },
+            "request": { "method": "GET", "urlPattern": "/api/search($|\\?.*)" },
             "response": {
                 "status": 200,
                 "jsonBody": {
@@ -66,6 +66,7 @@
             }
         },
         {
+            "priority": 1,
             "request": {
                 "method": "GET",
                 "url": "/api/admin/dashboard",
@@ -77,6 +78,7 @@
             }
         },
         {
+            "priority": 5,
             "request": { "method": "GET", "url": "/api/admin/dashboard" },
             "response": {
                 "status": 403,

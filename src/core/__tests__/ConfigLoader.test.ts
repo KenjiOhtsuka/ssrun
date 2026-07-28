@@ -18,22 +18,13 @@ function writeFile(dir: string, relPath: string, content: string) {
 }
 
 describe("ConfigLoader", () => {
-  let savedEnv: NodeJS.ProcessEnv;
-
   beforeEach(() => {
-    savedEnv = { ...process.env };
-    // Start with a clean env to prevent inherited values from affecting assertions.
-    // Only preserve essential system vars required by Node.js/OS.
-    const preserve = new Set(["PATH", "PATHEXT", "SystemRoot", "windir", "SystemDrive", "TEMP", "TMP", "ComSpec"]);
+    // Remove any test-specific keys left by previous tests
     for (const key of Object.keys(process.env)) {
-      if (!preserve.has(key)) {
+      if (key.startsWith("SSRUN_TEST_")) {
         delete process.env[key];
       }
     }
-  });
-
-  afterEach(() => {
-    process.env = savedEnv;
   });
 
   it("loads from config/default.ts", async () => {

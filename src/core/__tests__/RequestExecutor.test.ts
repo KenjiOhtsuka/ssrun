@@ -155,7 +155,7 @@ describe("RequestExecutor.resolve", () => {
     assert.strictEqual(result.url, "http://localhost:8080/api/users/5?verbose=true");
   });
 
-  it("resolves top-level string values in object body", () => {
+  it("recursively resolves nested string values in object body", () => {
     const ctx = new Context();
     ctx.set("city", "Tokyo");
     const result = executor.resolve(
@@ -170,20 +170,19 @@ describe("RequestExecutor.resolve", () => {
     );
     assert.deepStrictEqual(result.body, {
       name: "Bob",
-      address: { city: "{{city}}", zip: "100-0001" },
+      address: { city: "Tokyo", zip: "100-0001" },
     });
   });
 });
 
 describe("RequestExecutor.execute", () => {
-  let originalFetch: typeof globalThis.fetch;
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
   });
 
   it("returns success result on 2xx response", async () => {
-    originalFetch = globalThis.fetch;
     globalThis.fetch = async () => new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "content-type": "application/json" }
@@ -197,8 +196,7 @@ describe("RequestExecutor.execute", () => {
     assert.deepStrictEqual(result.body, { ok: true });
   });
 
-  it("returns result with error on non-2xx response", async () => {
-    originalFetch = globalThis.fetch;
+  it("marks 4xx/5xx responses as failures", async () => {
     globalThis.fetch = async () => new Response(JSON.stringify({ error: "not found" }), {
       status: 404,
       headers: { "content-type": "application/json" }
@@ -208,12 +206,11 @@ describe("RequestExecutor.execute", () => {
     const result = await executor.execute(makeRequest());
 
     assert.strictEqual(result.status, 404);
-    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.success, false);
     assert.deepStrictEqual(result.body, { error: "not found" });
   });
 
   it("returns error result on fetch rejection", async () => {
-    originalFetch = globalThis.fetch;
     globalThis.fetch = async () => { throw new Error("network error"); };
 
     const executor = new RequestExecutor();
@@ -225,7 +222,6 @@ describe("RequestExecutor.execute", () => {
   });
 
   it("returns null body when response is not JSON", async () => {
-    originalFetch = globalThis.fetch;
     globalThis.fetch = async () => new Response("plain text", { status: 200 });
 
     const executor = new RequestExecutor();
@@ -237,7 +233,6 @@ describe("RequestExecutor.execute", () => {
   });
 
   it("sends object body as JSON with Content-Type header", async () => {
-    originalFetch = globalThis.fetch;
     let capturedInit: RequestInit | undefined;
     globalThis.fetch = async (_url, init) => {
       capturedInit = init;
@@ -256,7 +251,6 @@ describe("RequestExecutor.execute", () => {
   });
 
   it("passes string body through unchanged", async () => {
-    originalFetch = globalThis.fetch;
     let capturedInit: RequestInit | undefined;
     globalThis.fetch = async (_url, init) => {
       capturedInit = init;
@@ -273,7 +267,6 @@ describe("RequestExecutor.execute", () => {
   });
 
   it("populates response headers in result", async () => {
-    originalFetch = globalThis.fetch;
     globalThis.fetch = async () => new Response("{}", {
       status: 200,
       headers: { "x-request-id": "abc123", "content-type": "application/json" }
@@ -287,7 +280,6 @@ describe("RequestExecutor.execute", () => {
   });
 
   it("reports timing in duration", async () => {
-    originalFetch = globalThis.fetch;
     globalThis.fetch = async () => new Response("{}", { status: 200 });
 
     const executor = new RequestExecutor();

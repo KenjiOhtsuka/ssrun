@@ -53,5 +53,5 @@ npm test
 The sample project uses WireMock for mock API responses. Mappings are in `mappings/` as JSON files. Response bodies can be static JSON or loaded from `__files/`.
 
 WireMock 3.x notes:
-- Catch-all mappings (e.g., `"urlPattern": ".*"`) will match before more specific patterns. Remove catch-alls or use explicit priority to avoid conflicts.
-- Lower numeric priorities win (1 is highest). Use `priority` on mappings that should take precedence over otherwise matching catch-alls.
+- Catch-all mappings are fallback/default stubs, not automatically higher precedence than specific mappings. Equal-priority matches use the most recently added stub.
+- Lower numeric priorities win (1 is highest). Assign catch-all mappings a higher numeric priority (e.g., `10`) so more specific mappings (priority `1` or default) take precedence.

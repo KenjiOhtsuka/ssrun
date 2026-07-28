@@ -26,7 +26,7 @@
                 "jsonBody": {
                     "id": 1001,
                     "status": "completed",
-                    "total": 150.00,
+                    "total": 2399.97,
                     "userId": 1,
                     "items": [
                         { "productId": 101, "quantity": 1, "price": 999.99 },

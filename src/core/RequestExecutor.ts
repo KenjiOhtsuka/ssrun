@@ -5,6 +5,11 @@ import type { RequestDefinition, RequestInput } from "./Request.js";
 import type { RequestResult } from "./Result.js";
 
 export class RequestExecutor {
+    private readonly timeout: number;
+
+    constructor(options?: { timeout?: number }) {
+        this.timeout = options?.timeout ?? 30000;
+    }
 
     private resolveString(
         text: string,
@@ -59,14 +64,13 @@ export class RequestExecutor {
     ): unknown {
         if (body == null) return undefined;
         if (typeof body === "string") return this.resolveString(body, context);
+        if (Array.isArray(body)) {
+            return body.map(item => this.resolveBody(item, context));
+        }
         if (typeof body === "object") {
             const resolved: Record<string, unknown> = {};
             for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
-                if (typeof value === "string") {
-                    resolved[key] = this.resolveString(value, context);
-                } else {
-                    resolved[key] = value;
-                }
+                resolved[key] = this.resolveBody(value, context);
             }
             return resolved;
         }
@@ -138,32 +142,41 @@ export class RequestExecutor {
                     }
                 }
             }
-            const response = await fetch(
-                resolved.url,
-                {
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), this.timeout);
+
+            try {
+                const response = await fetch(
+                    resolved.url,
+                    {
+                        method: resolved.method,
+                        headers: headersToSend,
+                        body: fetchBody,
+                        signal: controller.signal
+                    }
+                );
+
+                const body = await response.json().catch(() => null);
+
+                const responseHeaders: Record<string, string> = {};
+                response.headers.forEach((value, key) => {
+                    responseHeaders[key] = value;
+                });
+
+                return {
+                    name: resolved.name,
                     method: resolved.method,
-                    headers: headersToSend,
-                    body: fetchBody
-                }
-            );
-
-            const body = await response.json().catch(() => null);
-
-            const responseHeaders: Record<string, string> = {};
-            response.headers.forEach((value, key) => {
-                responseHeaders[key] = value;
-            });
-
-            return {
-                name: resolved.name,
-                method: resolved.method,
-                url: resolved.url,
-                status: response.status,
-                duration: Date.now() - start,
-                success: true,
-                body,
-                headers: responseHeaders
-            };
+                    url: resolved.url,
+                    status: response.status,
+                    duration: Date.now() - start,
+                    success: response.ok,
+                    body,
+                    headers: responseHeaders
+                };
+            } finally {
+                clearTimeout(timer);
+            }
         } catch (err: any) {
             return {
                 name: resolved.name,

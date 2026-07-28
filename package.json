@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "start": "node dist/main.ts",
+    "start": "node dist/main.js",
     "test": "node --test --import tsx src/**/*.test.ts"
   },
   "keywords": [],
