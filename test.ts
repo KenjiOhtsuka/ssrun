@@ -49,11 +49,10 @@ const labelWidth = targets.reduce((w, t) => Math.max(w, t.label.length), 0);
 async function runTarget(target: Target): Promise<boolean> {
   return new Promise((resolve) => {
     const child = spawn(
-      "npx",
-      ["tsx", "src/main.ts", projectFlag, projectDir, ...target.args],
+      process.execPath,
+      ["--import", "tsx", "src/main.ts", projectFlag, projectDir, ...target.args],
       {
         stdio: "inherit",
-        shell: true,
       }
     );
     child.on("close", (code) => {
