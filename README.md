@@ -115,7 +115,7 @@ ssrun --project ./my-api-tests \
 
 A typical test project:
 
-```
+```text
 my-api-tests/
   endpoint/
     user.ts          # GET /api/users/{id}
