@@ -47,7 +47,8 @@ Use this after making code changes and before committing. It ensures the changes
    - **Naming**: match existing conventions (camelCase, descriptive names)
    - **Scope creep**: each change should address only its intended purpose
    - **Security**:
-     - No hardcoded secrets (tokens, passwords) in source files — use env vars or config files
+     - No hardcoded secrets (tokens, passwords) in source files — use env vars, secret managers (CI secret store), or explicitly gitignored local config; never commit secrets in config files
+     - WireMock fixtures (e.g., `mappings/auth.json`) contain synthetic test data, not real secrets — but still avoid accidentally committing real credentials as fixtures
      - Env files (`.env`, `.*.env`) are gitignored; never commit them
      - Config values containing credentials are not logged in output
      - WireMock auth mappings have correct priority so unauthenticated requests don't bypass auth
@@ -70,5 +71,8 @@ Use this after making code changes and before committing. It ensures the changes
 - [ ] Change is scoped to its intended purpose
 - [ ] No unnecessary files modified
 - [ ] No hardcoded secrets in source
+- [ ] Credential-containing config values are not logged in output
+- [ ] `{{ }}` interpolation values are treated as opaque strings (no injection)
 - [ ] Auth-related WireMock mappings have correct priority ordering
+- [ ] WireMock fixtures are synthetic test data only (no real secrets)
 - [ ] Commit message matches project style

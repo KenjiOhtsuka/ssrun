@@ -89,7 +89,7 @@ async function main() {
   console.log(`  ${passed} passed, ${failed} failed (${results.length} total)`);
   console.log("=".repeat(width) + "\n");
 
-  if (failed > 0) process.exit(1);
+  if (failed > 0) process.exitCode = 1;
 }
 
 main();
