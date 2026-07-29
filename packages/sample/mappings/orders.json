@@ -1,0 +1,76 @@
+{
+    "mappings": [
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/orders($|\\?.*)"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "orders": [
+                        { "id": 1001, "status": "completed", "total": 150.00, "userId": 1 },
+                        { "id": 1002, "status": "pending", "total": 75.50, "userId": 1 }
+                    ],
+                    "total": 2
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "GET",
+                "urlPattern": "/api/orders/[0-9]+"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "id": 1001,
+                    "status": "completed",
+                    "total": 2399.97,
+                    "userId": 1,
+                    "items": [
+                        { "productId": 101, "quantity": 1, "price": 999.99 },
+                        { "productId": 102, "quantity": 2, "price": 699.99 }
+                    ],
+                    "createdAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "/api/orders"
+            },
+            "response": {
+                "status": 201,
+                "jsonBody": {
+                    "id": 1003,
+                    "status": "pending",
+                    "total": 0,
+                    "message": "Order created successfully"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "PUT",
+                "urlPattern": "/api/orders/[0-9]+/status"
+            },
+            "response": {
+                "status": 200,
+                "jsonBody": {
+                    "id": 1001,
+                    "status": "shipped",
+                    "updatedAt": "2026-01-01T00:00:00Z"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "DELETE",
+                "urlPattern": "/api/orders/[0-9]+"
+            },
+            "response": { "status": 204 }
+        }
+    ]
+}
