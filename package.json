@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "test": "node --test --import tsx src/**/*.test.ts"
+    "test": "node --test --import tsx src/**/*.test.ts",
+    "test:run-all": "npx tsx test.ts"
   },
   "keywords": [],
   "author": "",

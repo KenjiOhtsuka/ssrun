@@ -6,3 +6,6 @@ node_modules/
 
 .idea/
 dist/
+
+# WireMock admin API dump (regenerated on demand)
+mappings.json
