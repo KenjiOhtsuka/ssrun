@@ -21,11 +21,11 @@ Use this after making code changes and before committing. It ensures the changes
    ```
    All tests must pass. If any fail, fix them before proceeding.
 
-3. **Type-check**
+3. **Build + Type-check**
    ```bash
-   npx tsc --noEmit
+   npm run build
    ```
-   Ensure no type errors. The project uses `exactOptionalPropertyTypes` — use `error?: string | undefined` in type definitions where needed, not spread-based workarounds.
+   Ensure the TypeScript build succeeds with no errors. The project uses `exactOptionalPropertyTypes` — use `error?: string | undefined` in type definitions where needed, not spread-based workarounds.
 
 4. **Check against conventions**
 
@@ -54,7 +54,12 @@ Use this after making code changes and before committing. It ensures the changes
      - WireMock auth mappings have correct priority so unauthenticated requests don't bypass auth
      - `{{ }}` interpolation values are treated as opaque strings (no eval/shell injection)
 
-6. **WireMock-specific checks** (if modifying mappings)
+6. **Verify exports map** (if modifying `package.json`)
+   - Wildcard patterns like `"./*": "./dist/*"` — do NOT append `.js` to the target since imports already include the `.js` extension
+   - Incorrect: `"./*": "./dist/*.js"` produces double extension (e.g., `HttpMethod.js.js`)
+   - Correct: `"./*": "./dist/*"` maps `HttpMethod.js` → `dist/HttpMethod.js`
+
+7. **WireMock-specific checks** (if modifying mappings)
 
    - Catch-all stubs need higher numeric priority (e.g., `10`) so specific mappings take precedence
    - `urlPattern` does full-string matching — account for trailing query params: `($|\\?.*)`
@@ -64,8 +69,8 @@ Use this after making code changes and before committing. It ensures the changes
 
 ## Checklist
 
+- [ ] Build passes (`npm run build`)
 - [ ] Tests pass (`npm test`)
-- [ ] No type errors (`npx tsc --noEmit`)
 - [ ] ESM imports with `.js` extensions
 - [ ] Error handling covers edge cases
 - [ ] Change is scoped to its intended purpose
@@ -75,4 +80,10 @@ Use this after making code changes and before committing. It ensures the changes
 - [ ] `{{ }}` interpolation values are treated as opaque strings (no injection)
 - [ ] Auth-related WireMock mappings have correct priority ordering
 - [ ] WireMock fixtures are synthetic test data only (no real secrets)
-- [ ] Commit message matches project style
+- [ ] No hardcoded secrets in source
+- [ ] Credential-containing config values are not logged in output
+- [ ] `{{ }}` interpolation values are treated as opaque strings (no injection)
+- [ ] Auth-related WireMock mappings have correct priority ordering
+- [ ] WireMock fixtures are synthetic test data only (no real secrets)
+- [ ] `exports` map pattern is correct (no double-extension: use `"./dist/*"` not `"./dist/*.js"`)
+- [ ] Commit message uses conventional format (`fix:`, `feat:`, `chore:`, etc.)

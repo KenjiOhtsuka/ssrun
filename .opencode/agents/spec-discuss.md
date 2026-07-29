@@ -31,7 +31,7 @@ Key conventions:
 - **Package names**: `@kenjiotsuka/ssrun` (core), `@kenjiotsuka/ssrun-gui` (gui, future)
 - **Imports**: Sample project uses `@kenjiotsuka/ssrun/core/...` via tsconfig `paths` (mapped to `../../core/src/*`)
 - **Config**: `.env` + `config/*.ts`, resolved via `{{ variable }}` interpolation
-- **WireMock**: Started with `--mappings-dir packages/sample/mappings`
+- **WireMock**: Started from `packages/sample/` (JAR + mappings auto-detected)
 
 ## Your Role
 

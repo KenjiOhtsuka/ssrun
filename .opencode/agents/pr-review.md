@@ -32,8 +32,11 @@ If the user does not specify a PR number, ask which PR to review.
 
 4. **Post a review with inline comments** via the GitHub API:
    ```bash
-   # Get owner/repo from git remote
-   owner_repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+    # Get owner/repo from git remote
+    # Bash:
+    owner_repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+    # PowerShell:
+    # $owner_repo = gh repo view --json nameWithOwner --jq .nameWithOwner
 
    # Write the payload to a temp file to avoid shell quoting issues
    cat <<'PAYLOAD' > /tmp/pr-review-payload.json
@@ -79,6 +82,7 @@ If the user does not specify a PR number, ask which PR to review.
 - [ ] Imported only what's needed (no dead code or unused imports)?
 - [ ] Workspace dependency resolution is correct (no duplicated dependencies across packages)?
 - [ ] tsconfig paths/`exports` map are minimal (no overly broad glob patterns)?
+- [ ] `exports` map patterns don't produce double extensions (e.g., `./dist/*.js` when imports already include `.js`)?
 
 ### 4. Maintainability & Conventions
 - [ ] Follows ESM imports with `.js` extensions?
