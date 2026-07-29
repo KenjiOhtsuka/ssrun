@@ -38,7 +38,7 @@ export const userCrudScenario: ScenarioDefinition = {
         },
         // getUser/updateUser/deleteUser use hardcoded path IDs because:
         // 1. The request input files (getUserInput, updateUserInput, deleteUserInput) are shared
-        //    with standalone request tests  Eusing "{{newUserId}}" there would break those tests
+        //    with standalone request tests — using "{{newUserId}}" there would break those tests
         //    since newUserId only exists in scenario context.
         // 2. WireMock returns the same mock data regardless of ID, so hardcoded IDs work fine
         //    for testing the CRUD flow.

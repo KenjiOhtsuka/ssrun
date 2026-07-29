@@ -36,7 +36,8 @@ export const productCrudScenario: ScenarioDefinition = {
             }
         },
         // getProduct/updateProduct/deleteProduct use hardcoded path IDs because:
-        // 1. The request input files are shared with standalone request tests  E        //    using "{{newProductId}}" there would break those tests since
+        // 1. The request input files are shared with standalone request tests —
+        //    using "{{newProductId}}" there would break those tests since
         //    newProductId only exists in scenario context.
         // 2. WireMock returns the same mock data regardless of ID, so hardcoded
         //    IDs work fine for testing the CRUD flow.
