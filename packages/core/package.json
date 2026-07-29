@@ -7,13 +7,8 @@
   "bin": {
     "ssrun": "dist/main.js"
   },
-  "description": "",
-  "main": "dist/public-api.js",
+  "description": "Scenario & Suite Runner CLI — API testing framework",
   "exports": {
-    ".": {
-      "types": "./dist/public-api.d.ts",
-      "default": "./dist/public-api.js"
-    },
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"

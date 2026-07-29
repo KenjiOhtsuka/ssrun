@@ -13,8 +13,8 @@ import type { RequestResult } from "./core/Result.js";
 
 // Argument parsing
 const envIndex = process.argv.indexOf("--env");
-const env = envIndex !== -1 && process.argv.length > envIndex + 1
-    ? process.argv[envIndex + 1]
+const env: string = envIndex !== -1 && process.argv.length > envIndex + 1
+    ? (process.argv[envIndex + 1] ?? "dev")
     : "dev";
 
 // Determine project root directory
@@ -26,7 +26,7 @@ const projectRootURL = pathToFileURL(projectRoot + path.sep).href;
 
 // Load configuration
 const configLoader = new ConfigLoader();
-const globalContext = await configLoader.load(projectRoot!!, env!!);
+const globalContext = await configLoader.load(projectRoot, env);
 
 /*
 Expected Usage:

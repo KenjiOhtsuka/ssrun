@@ -91,7 +91,7 @@ export class ScenarioExecutor {
                     const body = result.body;
                     if (body && typeof body === "object") {
                         for (
-                            let [contextKey, responseKey] of Object.entries(step.exports)
+                            const [contextKey, responseKey] of Object.entries(step.exports)
                         ) {
                             context.set(contextKey, (body as Record<string, unknown>)[responseKey]);
                         }
