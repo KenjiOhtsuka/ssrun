@@ -6,7 +6,7 @@
 npm run build
 ```
 
-Outputs to `dist/`.
+Outputs to `packages/core/dist/`.
 
 ## Test
 
@@ -14,12 +14,12 @@ Outputs to `dist/`.
 npm test
 ```
 
-Runs unit tests via `node:test`. Test files live in `src/core/__tests__/`.
+Runs unit tests via `node:test`. Test files live in `packages/core/src/core/__tests__/`.
 
 ## Run
 
 ```bash
-npx tsx src/main.ts --project <projectRoot> --env <environment> --run <target>
+npx tsx packages/core/src/main.ts --project <projectRoot> --env <environment> --run <target>
 ```
 
 Targets:
@@ -30,27 +30,32 @@ Targets:
 ## Project Structure
 
 ```text
-src/
-  main.ts              # CLI entry point, argument parsing, executor orchestration
+packages/
   core/
-    ConfigLoader.ts    # Loads config files (.env, config/*.ts) into global context
-    Context.ts         # Variable store (global + request-scoped)
-    EndpointDefinition.ts
-    HeaderDefinition.ts
-    HttpMethod.ts
-    ParameterDefinition.ts
-    Request.ts         # Request definition
-    RequestExecutor.ts # Executes a single API request
-    ResolvedRequestDefinition.ts
-    Result.ts          # RequestResult, StepResult, ScenarioResult, SuiteResult
-    Scenario.ts        # Ordered list of requests + assertion types
-    ScenarioExecutor.ts
-    Suite.ts           # Ordered list of scenarios (supports parallel blocks)
-    SuiteExecutor.ts
-    __tests__/         # Unit tests (node:test + node:assert)
-      Context.test.ts
-      ConfigLoader.test.ts
-      RequestExecutor.test.ts
+    src/
+      main.ts              # CLI entry point, argument parsing, executor orchestration
+      core/
+        ConfigLoader.ts    # Loads config files (.env, config/*.ts) into global context
+        Context.ts         # Variable store (global + request-scoped)
+        EndpointDefinition.ts
+        HeaderDefinition.ts
+        HttpMethod.ts
+        ParameterDefinition.ts
+        Request.ts         # Request definition
+        RequestExecutor.ts # Executes a single API request
+        ResolvedRequestDefinition.ts
+        Result.ts          # RequestResult, StepResult, ScenarioResult, SuiteResult
+        Scenario.ts        # Ordered list of requests + assertion types
+        ScenarioExecutor.ts
+        Suite.ts           # Ordered list of scenarios (supports parallel blocks)
+        SuiteExecutor.ts
+        __tests__/         # Unit tests (node:test + node:assert)
+          Context.test.ts
+          ConfigLoader.test.ts
+          RequestExecutor.test.ts
+  sample/
+    project/               # Sample test project (endpoints, requests, scenarios, config)
+    mappings/              # WireMock stub definitions (JSON)
 ```
 
 ## Key Conventions
@@ -64,7 +69,8 @@ src/
 - **Assertions**: Scenarios support `assert` blocks with `status`, `headers`, and `json` checks.
 - **Failure handling**: Scenarios stop on first failure; remaining steps are skipped. Suites execute all scenarios.
 - **Exit code**: `0` = all pass, `1` = any failure.
-- **Self-review**: After making changes, load the `self-review` skill to run through a review checklist before committing.
+- **Self-review**: Before committing, load the `self-review` skill to run through a review checklist.
+- **PR review**: For reviewing GitHub Pull Requests from multiple perspectives (security, correctness, efficiency, etc.), use the `pr-review` agent.
 
 ## User Project Layout
 

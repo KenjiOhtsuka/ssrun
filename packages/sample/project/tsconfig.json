@@ -1,0 +1,11 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@kenjiotsuka/ssrun": ["../../core/src/public-api.ts"],
+      "@kenjiotsuka/ssrun/*": ["../../core/src/*"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

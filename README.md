@@ -201,7 +201,7 @@ Exports map context variable names to top-level response body keys.
 import { loginProfileScenario } from "../scenario/login-profile.js";
 import { userCrudScenario } from "../scenario/user-crud.js";
 
-import type { SuiteDefinition } from "../../src/core/Suite.js";
+import type { SuiteDefinition } from "@kenjiotsuka/ssrun/core/Suite.js";
 
 export const fullFlowSuite: SuiteDefinition = {
   name: "full-flow",
@@ -252,10 +252,23 @@ Variables are resolved from the context at execution time.
 
 ## Development
 
+This project uses npm workspaces:
+
+```text
+ssrun/
+├── packages/
+│   ├── core/       ← @kenjiotsuka/ssrun (framework source)
+│   └── sample/
+│       ├── project/  ← Sample test project
+│       └── mappings/ ← WireMock stubs
+├── tsconfig.base.json
+└── package.json
+```
+
 ```bash
 npm install
 npm test          # Run unit tests
-npm run build     # Build to dist/
+npm run build     # Build core to dist/
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.

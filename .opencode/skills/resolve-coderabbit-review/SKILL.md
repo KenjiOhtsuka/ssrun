@@ -57,16 +57,20 @@ gh pr view --json number --jq .number
 
    * **When a comment is reasonable:**
      1. Modify the code in the specified file as per the comment.
-     2. Run tests and build to verify the change doesn't break anything:
+     2. Build and run tests to verify the change doesn't break anything:
         ```bash
-        npm test
         npm run build
+        npm test
         ```
      3. If tests pass, commit **and push** the changes. CodeRabbit re-checks the PR automatically after a new commit is pushed — local-only changes will not be detected and the comments will remain unresolved.
      4. Reply to each inline comment thread individually using its comment ID:
         ```bash
         gh api "/repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies" \
           --field body="Addressed: [brief summary of change]"
+        ```
+        **Windows/PowerShell note:** The `${owner}`, `${repo}`, `${pr}`, `${comment_id}` patterns in the URL may be interpreted by PowerShell as variable expansions. Wrap the URL in single quotes or escape with backticks:
+        ```powershell
+        gh api "/repos/$("{owner}")/$("{repo}")/pulls/$("{pr}")/comments/$("{comment_id}")/replies" ...
         ```
         If the reply body contains special characters (parentheses, quotes), use a file:
         ```powershell
