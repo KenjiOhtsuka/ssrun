@@ -1,6 +1,9 @@
 {
   "name": "@kenjiotsuka/ssrun",
   "version": "0.1.3",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "ssrun": "dist/main.js"
   },
