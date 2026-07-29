@@ -70,9 +70,12 @@ export class ConfigLoader {
             );
 
         if (existsSync(defaultEnvPath)) {
-            loadDotEnv({
+            const result = loadDotEnv({
                 path: defaultEnvPath
             });
+            if (result.error) {
+                console.warn(`[WARN] Failed to parse ${defaultEnvPath}: ${result.error.message}`);
+            }
         }
 
         //
@@ -86,10 +89,13 @@ export class ConfigLoader {
             );
 
         if (existsSync(envFilePath)) {
-            loadDotEnv({
+            const result = loadDotEnv({
                 path: envFilePath,
                 override: true
             });
+            if (result.error) {
+                console.warn(`[WARN] Failed to parse ${envFilePath}: ${result.error.message}`);
+            }
         }
 
         //
