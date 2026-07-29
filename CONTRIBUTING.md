@@ -18,7 +18,8 @@ Integration tests (requires WireMock):
 
 Run WireMock in one terminal:
 ```bash
-java -jar wiremock-standalone-3.13.2.jar --mappings-dir packages/sample/mappings
+cd packages/sample
+java -jar wiremock-standalone-3.13.2.jar
 ```
 In another terminal:
 ```
