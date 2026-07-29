@@ -16,9 +16,12 @@ npm test
 
 Integration tests (requires WireMock):
 
+Run WireMock in one terminal:
 ```bash
 java -jar wiremock-standalone-3.13.2.jar --mappings-dir packages/sample/mappings
-# In another terminal:
+```
+In another terminal:
+```
 node --import tsx packages/sample/project/test.ts
 ```
 

@@ -43,7 +43,7 @@ export const orderCrudScenario: ScenarioDefinition = {
                 json: {
                     id: 1001,
                     status: "completed",
-                    total: 150.00
+                    total: 2399.97
                 }
             }
         },
