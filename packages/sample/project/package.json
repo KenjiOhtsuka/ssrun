@@ -1,0 +1,13 @@
+{
+  "name": "@kenjiotsuka/ssrun-sample",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:run-all": "node --import tsx test.ts"
+  },
+  "devDependencies": {
+    "@kenjiotsuka/ssrun": "*",
+    "@types/node": "^26.1.0"
+  }
+}

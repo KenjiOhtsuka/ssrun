@@ -9,3 +9,6 @@ dist/
 
 # WireMock admin API dump (regenerated on demand)
 mappings.json
+
+# Temp files
+packages/sample/project/_test_resolve.ts
